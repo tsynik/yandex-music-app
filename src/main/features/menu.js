@@ -3,6 +3,7 @@ const { showOpenURLDialog } = require("../dialogs/openURL");
 const { showHotkeysDialog } = require("../dialogs/hotkeys");
 const navigation = require("./navigation");
 const { showLoader } = require("../index");
+const { isDockIconVisible } = require("./dockIcon");
 
 const menu = Menu.buildFromTemplate([
   {
@@ -45,15 +46,11 @@ const menu = Menu.buildFromTemplate([
           global.mainWindow.reload();
         },
       },
-      {
-        role: "close",
-      },
+      { role: "close" },
       { type: "separator" },
       { role: "zoomin" },
-      { role: 'zoomout' },
-      {
-        role: "togglefullscreen",
-      },
+      { role: "zoomout" },
+      ...(isDockIconVisible() ? { role: "togglefullscreen" } : {}),
     ],
   },
   {
@@ -89,7 +86,6 @@ const menu = Menu.buildFromTemplate([
 ]);
 Menu.setApplicationMenu(menu);
 
-
 function createSettings(isMenuBar) {
   const showMenuBarIconOption = {
     label: "Show Menu Bar Icon",
@@ -109,7 +105,7 @@ function createSettings(isMenuBar) {
         global.store.set("notifications", menuItem.checked);
       },
     },
-    (isMenuBar) ? undefined : showMenuBarIconOption,
+    isMenuBar ? undefined : showMenuBarIconOption,
     {
       label: "Enable Discord rich presence",
       type: "checkbox",

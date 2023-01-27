@@ -9,7 +9,7 @@ let win;
 let willQuitApp = false;
 
 app.commandLine.appendSwitch("disable-features", "HardwareMediaKeyHandling,MediaSessionService");
-process.on('uncaughtException', console.error);
+process.on("uncaughtException", console.error);
 
 app.on("before-quit", () => (willQuitApp = true));
 app.on("activate", () => {
@@ -19,21 +19,24 @@ app.on("activate", () => {
 });
 
 app.on("ready", () => {
+  const store = new Store();
+  const isDockIconVisible = !store.get("hide-dock-icon", false);
+
   win = new BrowserWindow({
     title: "Яндекс.Музыка",
     minHeight: 200,
     minWidth: 400,
+    fullscreenable: isDockIconVisible,
     webPreferences: {
       contextIsolation: false,
       preload: path.join(__dirname, "../renderer/preload.js"),
     },
   });
 
-  const store = new Store();
-  ipcMain.handle('getStoreValue', (_event, key, defaultValue) => {
+  ipcMain.handle("getStoreValue", (_event, key, defaultValue) => {
     return store.get(key, defaultValue);
   });
-  ipcMain.handle('setStoreValue', (_event, key, value) => {
+  ipcMain.handle("setStoreValue", (_event, key, value) => {
     return store.set(key, value);
   });
   const windowBounds = store.get("window.bounds", { width: defaultWindowWidth, height: defaultWindowHeight });
@@ -41,7 +44,7 @@ app.on("ready", () => {
 
   exports.showLoader();
   win.loadURL("https://music.yandex.ru");
-  
+
   global.mainWindow = win;
   global.store = store;
 
@@ -56,7 +59,9 @@ app.on("ready", () => {
       win = null;
     } else {
       e.preventDefault();
-      win.hide();
+      if (win.isFullScreen()) {
+        win.setFullScreen(false);
+      } else win.hide();
     }
   });
 });
@@ -65,7 +70,7 @@ app.setAsDefaultProtocolClient("yandex-music-app");
 
 app.on("open-url", (event, url) => {
   event.preventDefault();
-  global.mainWindow.loadURL("https://music.yandex.ru/" + url.replace('yandex-music-app:/', ''));
+  global.mainWindow.loadURL("https://music.yandex.ru/" + url.replace("yandex-music-app:/", ""));
 });
 
 exports.showLoader = () => {
