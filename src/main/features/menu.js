@@ -3,6 +3,7 @@ const { showOpenURLDialog } = require("../dialogs/openURL");
 const { showHotkeysDialog } = require("../dialogs/hotkeys");
 const navigation = require("./navigation");
 const { showLoader } = require("../index");
+const { isDockIconVisible } = require("./dockIcon");
 
 let i18n = new (require("../locales/i18n"))();
 const isMac = process.platform === "darwin";
@@ -79,8 +80,8 @@ const menu = Menu.buildFromTemplate([
       },
       { type: "separator" },
       { role: "zoomin", label: i18n.__("Zoom In") },
-      { role: "zoomout", label: i18n.__("Zoom Out") },
-      { role: "togglefullscreen", label: i18n.__("Toggle Full Screen") },
+      { role: "zoomout" },
+      ...(isDockIconVisible() ? { role: "togglefullscreen", label: i18n.__("Toggle Full Screen") } : {}),
     ],
   },
   {
