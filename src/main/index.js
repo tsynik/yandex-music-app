@@ -21,10 +21,13 @@ app.on("activate", () => {
 });
 
 app.on("ready", () => {
+  const store = new Store();
+  const isDockEnabled = !store.get("hide-dock-icon", false);
   win = new BrowserWindow({
     title: i18n.__("App Name"),
     minHeight: 200,
     minWidth: 400,
+    fullscreenable: isDockEnabled,
     webPreferences: {
       contextIsolation: false,
       preload: path.join(__dirname, "../renderer/preload.js"),
@@ -35,7 +38,6 @@ app.on("ready", () => {
     //version: app.getVersion, // TODO: show git revision
   });
 
-  const store = new Store();
   ipcMain.handle("getStoreValue", (_event, key, defaultValue) => {
     return store.get(key, defaultValue);
   });
@@ -62,7 +64,10 @@ app.on("ready", () => {
       win = null;
     } else {
       e.preventDefault();
-      win.hide();
+      if (win.isFullScreen())
+        win.setFullScreen(false);
+      else
+        win.hide();
     }
   });
 });

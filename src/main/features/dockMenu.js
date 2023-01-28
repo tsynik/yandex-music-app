@@ -73,6 +73,10 @@ function refreshMenu() {
         click(menuItem) {
           setDockIconVisible(!menuItem.checked);
           refreshMenu();
+          // dirty fix to apply
+          // window fullscreen controls
+          app.relaunch();
+          app.quit();
         },
       })
     );
